@@ -3,6 +3,10 @@
 *.tfstate
 *.tfstate.*
 .terraform/
+.terraform.lock.hcl
 
 # GCP Credentials
 *.json
+
+# Backup files
+*.backup
