@@ -6,3 +6,7 @@
 
 # GCP Credentials
 *.json
+
+# Claude configuration (local only)
+CLAUDE.md
+.claude/
