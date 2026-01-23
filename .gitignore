@@ -1,3 +1,6 @@
+#virtual env
+*.venv
+
 # Terraform sensitive files
 *.tfvars
 *.tfstate
