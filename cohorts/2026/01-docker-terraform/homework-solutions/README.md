@@ -1,1 +1,24 @@
-# Week 1 Homework Solutions: Docker & SQL
+# Week 1 Homework Solutions
+
+## question 1 - understanding docker images. 
+
+here we need to run a container, from the python:3.13 image and override the entrypoint. 
+once running the container, we can use python to check the pip version.
+
+What's the version of pip in the image?
+
+25.3
+
+## question2 - understanding docker networking and docker compose
+
+given the .yaml file, the hostname needs to be the service name that we want to connect to. 
+
+there are three services, or containers, in this .yaml file. we can the service called 'db' because it's running postgres on it. 
+
+the port that you connect to/share is always the second one, so in this case 5432
+
+the answer is: db:5432
+you could also use postgres:5432, but if there are multiple databases running postgres then this will be a problem, as you should always use the service name. 
+
+## question3 - counting short trips
+
