@@ -85,3 +85,7 @@ LIMIT 1;
 ```
 
 **Answer: Yorkville West**
+
+## question 7 - terraform
+
+**Answer: terraform init, terraform apply, terraform destroy**
