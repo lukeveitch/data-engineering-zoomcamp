@@ -1,4 +1,3 @@
-
 # Week 1 Homework Solutions
 
 ## question 1 - understanding docker images. 
@@ -6,7 +5,7 @@
 here we need to run a container, from the python:3.13 image and override the entrypoint. 
 once running the container, we can use python to check the pip version.
 
-docker run --it --entrypoint bash python:3.13
+docker run -it --entrypoint bash python:3.13
 
 What's the version of pip in the image?
 
@@ -16,7 +15,7 @@ What's the version of pip in the image?
 
 given the .yaml file, the hostname needs to be the service name that we want to connect to. 
 
-there are three services, or containers, in this .yaml file. we can the service called 'db' because it's running postgres on it. 
+there are three services, or containers, in this .yaml file. we can use the service called 'db' because it's running postgres on it. 
 
 the port that you connect to/share is always the second one, so in this case 5432
 
