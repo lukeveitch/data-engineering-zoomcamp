@@ -37,3 +37,17 @@ WHERE DATE(lpep_pickup_datetime) >= '2025-11-01'
 
 **Answer: 8,007**
 
+## question 4 - longest trip
+
+```sql
+select date(lpep_pickup_datetime) date,
+max(trip_distance) max_trip_distance
+from green_taxi_trips
+where trip_distance <= 100
+group by 1
+order by 2 desc
+limit 1;
+```
+
+**Answer: 2025-11-14**
+
