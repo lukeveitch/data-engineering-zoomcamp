@@ -51,3 +51,37 @@ limit 1;
 
 **Answer: 2025-11-14**
 
+## question 5 - biggest pickup zone
+
+Which was the pickup zone with the largest total_amount (sum of all trips) on November 18th, 2025?
+
+```sql
+SELECT
+    tz."Zone",
+    SUM(gt.total_amount) AS total_amount
+FROM green_taxi_trips AS gt
+JOIN taxi_zones AS tz ON gt."PULocationID" = tz."LocationID"
+WHERE DATE(gt.lpep_pickup_datetime) = '2025-11-18'
+GROUP BY tz."Zone"
+ORDER BY total_amount DESC
+LIMIT 1;
+```
+
+**Answer: East Harlem North**
+
+## question 6 - largest tip
+
+```sql
+SELECT tz."Zone",
+       MAX(gt.tip_amount) AS max_tip_amount
+FROM green_taxi_trips AS gt
+JOIN taxi_zones AS tz ON gt."DOLocationID" = tz."LocationID"
+WHERE DATE(gt.lpep_pickup_datetime) >= '2025-11-01'
+  AND DATE(gt.lpep_pickup_datetime) < '2025-12-01'
+  AND gt."PULocationID" = 74
+GROUP BY tz."Zone"
+ORDER BY max_tip_amount DESC
+LIMIT 1;
+```
+
+**Answer: Yorkville West**
