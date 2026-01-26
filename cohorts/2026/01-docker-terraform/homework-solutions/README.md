@@ -1,5 +1,7 @@
 # Week 1 Homework Solutions
 
+**Learning in Public:** [Docker, Terraform, and a $0.000000002 Lesson](https://luke-veitch.medium.com/docker-terraform-and-a-0-000000002-lesson-c9ae450df1cb)
+
 ## question 1 - understanding docker images. 
 
 here we need to run a container, from the python:3.13 image and override the entrypoint. 
