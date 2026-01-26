@@ -1,7 +1,5 @@
 ## Data Engineering Zoomcamp 2026 Cohort
 
-**Learning in Public:** [Docker, Terraform, and a $0.000000002 Lesson](https://luke-veitch.medium.com/docker-terraform-and-a-0-000000002-lesson-c9ae450df1cb)
-
 * [Pre-launch Q&A stream](https://www.youtube.com/watch?v=WB6b1lcguaA)
 * [Launch stream with course overview](https://www.youtube.com/watch?v=JgspdlKXS-w)
 * [FAQ](https://datatalks.club/faq/data-engineering-zoomcamp.html)
