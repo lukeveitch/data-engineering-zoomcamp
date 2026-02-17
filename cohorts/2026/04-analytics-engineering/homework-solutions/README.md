@@ -1,93 +1,59 @@
 # Week 4 dbt Homework Answers
 
-## Question 1: Understanding dbt model resolution
+## Question 1: dbt Lineage and Execution
 
-Given the `sources.yaml`:
+**Q: Running `dbt run --select int_trips_unioned` executes which models?**
 
-```yaml
-sources:
-  - name: raw_nyc_tripdata
-    database: "{{ env_var('DBT_BIGQUERY_PROJECT', 'dtc_zoomcamp_2025') }}"
-    schema: "{{ env_var('DBT_BIGQUERY_SOURCE_DATASET', 'raw_nyc_tripdata') }}"
-```
-
-With environment variables:
-
-```shell
-export DBT_BIGQUERY_PROJECT=myproject
-export DBT_BIGQUERY_DATASET=my_nyc_tripdata
-```
-
-**Answer:** `select * from myproject.raw_nyc_tripdata.ext_green_taxi`
+**Answer: int_trips_unioned only**
 
 **Explanation:**
-- `DBT_BIGQUERY_PROJECT` is set to `myproject`, so the database resolves to `myproject`
-- `DBT_BIGQUERY_DATASET` is set, but the schema uses `DBT_BIGQUERY_SOURCE_DATASET` which is **NOT** set, so it falls back to the default `raw_nyc_tripdata`
-- The table name is `ext_green_taxi` as defined in the source
+The `--select` flag without a `+` prefix runs only that specific model. To include upstream dependencies, you would need `dbt run --select +int_trips_unioned`. To include downstream dependencies, you would use `dbt run --select int_trips_unioned+`.
 
 ---
 
-## Question 2: dbt Variables & Dynamic Models
+## Question 2: dbt Tests
 
-To make `days_back` controllable where command line args > ENV_VARs > DEFAULT:
+**Q: After `dbt test --select fct_trips` encounters a new value `6` in payment_type (expected: 1-5), what happens?**
 
-**Answer:** Update the WHERE clause to:
-```sql
-pickup_datetime >= CURRENT_DATE - INTERVAL '{{ var("days_back", env_var("DAYS_BACK", "30")) }}' DAY
-```
+**Answer: dbt fails the test, returning non-zero exit code**
 
 **Explanation:**
-- `var("days_back", ...)` checks for CLI variable first (via `--vars '{"days_back": 7}'`)
-- If no CLI var, it falls back to `env_var("DAYS_BACK", "30")`
-- If no env var set, it uses the default `"30"`
-- This gives the correct precedence: CLI > ENV_VAR > DEFAULT
+The `accepted_values` test fails by default when it encounters values not in the defined list. To make it warn instead of fail, you would need to configure `severity: warn` in the test definition.
 
 ---
 
-## Question 3: dbt Data Lineage and Execution
+## Question 3: Record Count in fct_monthly_zone_revenue
 
-Which command does **NOT** work for materializing `fct_taxi_monthly_zone_revenue`?
+**Q: What is the total record count in `fct_monthly_zone_revenue`?**
 
-**Answer:** `dbt run --select models/staging/+`
+**Answer: 12,998**
 
 **Explanation:**
-- `dbt run` - runs ALL models, including `fct_taxi_monthly_zone_revenue` ✓
-- `dbt run --select +models/core/dim_taxi_trips.sql+` - runs `dim_taxi_trips` and all its upstream AND downstream dependencies ✓
-- `dbt run --select +models/core/fct_taxi_monthly_zone_revenue.sql` - runs the fact model plus all upstream dependencies ✓
-- `dbt run --select +models/core/` - runs everything in core plus upstream dependencies ✓
-- `dbt run --select models/staging/+` - runs staging models and their **downstream** only, but this depends on the DAG. If `fct_taxi_monthly_zone_revenue` depends on staging models, it would be included. However, looking at the lineage diagram, if `taxi_zone_lookup` is a seed and the fact table depends on it, this selector might not reach everything needed.
+This model aggregates taxi trips by service_type, year, month, and pickup_zone. The count is much smaller than the source data because of the aggregation.
 
 ---
 
-## Question 4: dbt Macros and Jinja
+## Question 4: Best Performing Zone for Green Taxis (2020)
 
-Given the macro:
+**Q: Which pickup zone has the highest total revenue (`revenue_monthly_total_amount`) for Green taxis in 2020?**
 
-```sql
-{% macro resolve_schema_for(model_type) -%}
-    {%- set target_env_var = 'DBT_BIGQUERY_TARGET_DATASET' -%}
-    {%- set stging_env_var = 'DBT_BIGQUERY_STAGING_DATASET' -%}
+**Answer: East Harlem North**
 
-    {%- if model_type == 'core' -%} {{- env_var(target_env_var) -}}
-    {%- else -%}                    {{- env_var(stging_env_var, env_var(target_env_var)) -}}
-    {%- endif -%}
-{%- endmacro %}
-```
+---
 
-**True statements:**
+## Question 5: Green Taxi Trips (October 2019)
 
-1. ✅ **Setting a value for `DBT_BIGQUERY_TARGET_DATASET` env var is mandatory, or it'll fail to compile**
-   - When `model_type == 'core'`, it calls `env_var(target_env_var)` without a default - this will fail if not set
-   - When `model_type != 'core'`, the fallback also uses `env_var(target_env_var)` without a default
+**Q: What is the total trip count (`total_monthly_trips`) for Green taxis in October 2019?**
 
-2. ❌ Setting a value for `DBT_BIGQUERY_STAGING_DATASET` env var is mandatory - **FALSE**
-   - It has a fallback: `env_var(stging_env_var, env_var(target_env_var))`
+**Answer: 384,624**
 
-3. ✅ **When using `core`, it materializes in the dataset defined in `DBT_BIGQUERY_TARGET_DATASET`**
-   - The `if model_type == 'core'` branch returns `env_var(target_env_var)`
+---
 
-4. ✅ **When using `stg`, it materializes in the dataset defined in `DBT_BIGQUERY_STAGING_DATASET`, or defaults to `DBT_BIGQUERY_TARGET_DATASET`**
-   - Any value other than `'core'` goes to the else branch
+## Question 6: FHV Staging Model Record Count
 
-5. ✅ **When using `staging`, it materializes in the dataset defined in `DBT_BIGQUERY_STAGING_DATASET`, or defaults to `DBT_BIGQUERY_TARGET_DATASET`**
-   - Same as above - `'staging'` is not `'core'`, so it goes to else branch
+**Q: After creating `stg_fhv_tripdata` (filtering null dispatching_base_num, renaming fields), what is the record count?**
+
+**Answer: 22,998,722**
+
+**Explanation:**
+This count reflects FHV trip records from 2019 after filtering out rows where `dispatching_base_num` is NULL and joining with `dim_zones` to keep only records with known pickup and dropoff locations.
